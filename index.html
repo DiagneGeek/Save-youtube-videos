@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>saveym your youtube videos</title>
+  <style>
+    *{
+      color: #161616;
+      underline: none;
+      padding:0;
+      margin:0;
+    }
+    
+    body{
+      padding-top:80px;   
+      text-align:center ;
+    }
+    
+    a{
+      color:red;
+      font-weight:bold;
+    }
+    
+    .bold{
+      color:red;
+      font-weight:bold;
+      background:linear-gradient(#ff555f5c,#ff555f8d);
+    }
+    
+    h1{
+      font-size:3rem;
+      margin: 30px 7px;
+      text-align:left;
+    }
+    
+    iframe{
+      width: 350px;
+      border-radius: 14px;
+    }
+    
+    input{
+      width: 340px;
+      height: 70px;
+      border:solid red 2px;
+      border-radius: 8px;
+      outline:none;
+      margin:20px 20px;
+    }
+    
+    button{
+      width: 140px;
+      height: 55px;
+      border:solid 2px #e14b54fb;
+      background: red;
+      color:white;
+      border-radius: 10px;
+      transition: 0.8s ease-in-out;
+    }
+    
+    nav{
+      width:100%;
+      height:50px;
+      border-bottom:2px solid gray;
+      position:fixed;      
+      top:0;
+      padding:10px 0;     
+      background:white;      
+      z-index:10;     
+      button{
+        width: 49%;
+        font-size:1rem;
+        background: transparent;
+        color: red;
+        scale: 0.8;
+      }
+    }
+    
+    .active{
+        background:linear-gradient(#ff2a151b 60%, #ff2a15b8);
+        scale:0.9;
+    }
+    
+    
+    .downloaded{
+      width:100%;
+      min-height:90vh;      
+      height:fit-content;
+      position:absolute;
+      top:100px;
+      left:-500px;
+      background:white;
+      transition: 0.5s ease-in-out;
+    }
+    
+  </style>
+</head>
+<body>
+  
+ <nav>
+   <button class="active" onclick="navigateTo('/')">home</button>
+   <button onclick="navigateTo('/downloaded')">downloaded</button>
+ </nav>
+  
+<section class="welcome">
+  <h1>
+    Save your favorites <a href="https://youtube.com">Youtube</a> 
+    Videos For Free
+  </h1>
+  
+  <input type="text" placeholder="type the link of your youtube video">
+  <button onclick="download()">import</button>
+</section>
+
+
+<section class="downloaded">
+  <h1>Downloaded</h1>
+</section>
+ 
+<script>
+  const homeLink = document.querySelectorAll("nav button")[0]
+  const downloadedLink = document.querySelectorAll("nav button")[1]
+  
+  const homePage = document.querySelector(".welcome");
+  const downloadedPage = document.querySelector(".downloaded")
+  
+  
+  const sources = localStorage.getItem("srcs") != null ?
+     JSON.parse(localStorage.getItem("srcs")) : []
+  
+  console.log(typeof source);
+  
+  displayVideos()
+  
+  
+function navigateTo(path) {
+  if(path == "/") {
+    homeLink.className = "active"
+    downloadedLink.className = ""
+    downloadedPage.style.left = "-500px"
+    }else{
+    homeLink.className = ""
+    downloadedLink.className = "active"
+    downloadedPage.style.left = "0px"
+  }
+}
+
+
+
+function download() {
+  let link = document.querySelector("input").value
+  
+  link = renderEmbedLink(link)
+  
+  if(sources.find(s => s == link)) {
+    alert("This video is already downloaded")
+    return
+  }
+  
+  if(!link.includes("youtube")) {
+    alert("your link is not valid")
+    return
+  }
+  
+  
+  sources.push(link)
+  localStorage.setItem("srcs", JSON.stringify(sources))
+  displayVideos()
+}
+
+
+function renderEmbedLink(link) {
+  let embedLink;
+  
+  if(link.includes("embed")) {
+    return link
+  }else if(link.includes("youtu.be")) {
+    link = link.replace("youtu.be/", "youtube.com/embed/")
+    link = link.slice(0, link.indexOf("?"))
+    embedLink = link
+    return embedLink
+  }else{
+    link = link.replace("m.", "")
+    link = link.replace("watch?v=","embed/")
+    embedLink = link
+    return embedLink
+  }
+}
+
+
+
+function displayVideos() {
+  let children = ""
+  for(let src of sources){
+    children += `
+   <button onclick="delete(${sources.indexOf(src)})">delete</button>
+        <iframe 
+    width="560" 
+    height="315" 
+    src="${src}" 
+    title="YouTube video player" 
+    frameborder="5" 
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+    allowfullscreen>
+       </iframe>
+  </iframe>
+    `
+  }
+  
+   downloadedPage.innerHTML = "<h1>Downloaded</h1>"+children
+   downloadedLink.click()
+   document.querySelector("input").value = ""
+}
+
+</script>
+</body>
+</html>
